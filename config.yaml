@@ -1,0 +1,4 @@
+upstream:
+  address: "localhost:16743"
+socks:
+  address: "localhost:8080"

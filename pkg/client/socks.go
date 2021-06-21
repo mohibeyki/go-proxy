@@ -1,4 +1,4 @@
-package server
+package client
 
 import (
 	"bytes"
@@ -6,20 +6,21 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type sockIP struct {
 	A, B, C, D byte
-	PORT       uint16
+	Port       uint16
 }
 
 func (ip sockIP) toAddr() string {
-	return fmt.Sprintf("%d.%d.%d.%d:%d", ip.A, ip.B, ip.C, ip.D, ip.PORT)
+	return fmt.Sprintf("%d.%d.%d.%d:%d", ip.A, ip.B, ip.C, ip.D, ip.Port)
 }
 
-func StartServer(addr string) {
+func StartSocksServer(addr string) {
 	server, err := net.Listen("tcp", addr)
 	if err != nil {
 		log.Panic(err)
@@ -74,12 +75,32 @@ func handleClient(conn net.Conn) {
 		addr = fmt.Sprintf("%s:%d", host, port)
 	}
 
-	server, err := net.Dial("tcp", addr)
-	if err != nil {
-		log.Errorln(err)
+	// upstreamConn, err := Dial(viper.GetString("upstream.address"))
+	// if err != nil {
+	// 	log.Errorln(err)
+	// 	return
+	// }
+	// defer conn.Close()
+
+	addr = strings.TrimSpace(addr)
+	if len(addr) == 0 {
 		return
 	}
+
+	log.Infof("address is %s", addr)
+	target, err := net.Dial("tcp", addr)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	defer target.Close()
+
+	// upstreamConn.Write([]byte(addr + "\n"))
 	conn.Write([]byte{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
-	go io.Copy(server, conn)
-	io.Copy(conn, server)
+
+	go io.Copy(target, conn)
+	io.Copy(conn, target)
+
+	// go io.Copy(upstreamConn, conn)
+	// io.Copy(conn, upstreamConn)
 }
