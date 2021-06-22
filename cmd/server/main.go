@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	log.Infoln("go-proxy is starting")
+	log.Info("go-proxy server is starting")
 	config.Init()
 	server.StartTunnel(viper.GetString("upstream.address"))
 }

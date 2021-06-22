@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	log.Infoln("starting client")
+	log.Info("go-proxy client is starting")
 	config.Init()
 	client.StartSocksServer(viper.GetString("socks.address"))
 }

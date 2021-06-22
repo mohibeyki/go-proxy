@@ -17,7 +17,7 @@ func StartTunnel(address string) {
 		return
 	}
 
-	log.Infoln("starting tunnel on", address)
+	log.Info("starting tcp server on", address)
 	config := &tls.Config{Certificates: []tls.Certificate{certificates}}
 	ln, err := tls.Listen("tcp", address, config)
 	if err != nil {
@@ -42,7 +42,7 @@ func handleConnection(client net.Conn) {
 
 	addr, err := reader.ReadString('\n')
 	addr = strings.TrimSpace(addr)
-	log.Infof("address is '%s'", addr)
+	log.Debugf("address: %s", addr)
 	if err != nil {
 		log.Error(err)
 		return
